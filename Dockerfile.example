@@ -1,0 +1,19 @@
+FROM openjdk:19-jdk-alpine
+
+# Running applications with user privileges helps to mitigate some risks (see, for example, a thread on StackExchange).
+# So, an important improvement to the Dockerfile is to run the application as a non-root user:
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+# expose a port
+EXPOSE 8080
+
+#WORKDIR /app
+
+ARG DEPENDENCY=target/dependency
+
+# COPY <src> <dst> -> copy files into our image
+COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY ${DEPENDENCY}/META-INF /app/META-INF
+COPY ${DEPENDENCY}/BOOT-INF/classes /app
+ENTRYPOINT ["java","-cp","app:app/lib/*","com.example.MySpringApplication.MySpringApplication"]
